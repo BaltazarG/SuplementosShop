@@ -1,0 +1,51 @@
+﻿@using SuplementosShop.Entities
+@model Product
+
+@{
+    ViewData["Title"] = "EditProduct";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>EditProduct</h1>
+
+<div class="card-body">
+    <form method="post" asp-action="Edit" asp-controller="Product">
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="container" style="padding:30px">
+            <div class="form-group">
+                <label asp-for="Name" class="form-label">Name</label>
+                <input asp-for="Name" class="form-control" type="text" />
+                <span asp-validation-for="Name" class="text-danger" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="form-label">Description</label>
+                <input asp-for="Description" class="form-control" type="text" />
+                <span asp-validation-for="Description" class="text-danger" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Price" class="form-label">Price</label>
+                <input asp-for="Price" class="form-control" type="text" />
+                <span asp-validation-for="Price" class="text-danger" />
+            </div>
+            <div class="form-group">
+                <label asp-for="ImageUrl" class="form-label">Image Url</label>
+                <input asp-for="ImageUrl" class="form-control" type="text" />
+                <span asp-validation-for="ImageUrl" class="text-danger" />
+            </div>
+            <div class="form-group">
+                <label asp-for="CategoryId" class="form-label">Category Id</label>
+                <input asp-for="CategoryId" class="form-control" type="text" />
+                <span asp-validation-for="CategoryId" class="text-danger" />
+            </div>
+        </div>
+
+        <div class="container" style="padding:30px">
+            <div class="form-group">
+                <input type="submit" value="Edit" class="btn btn-success form-control" />
+            </div>
+        </div> 
+    </form>
+</div>
+
