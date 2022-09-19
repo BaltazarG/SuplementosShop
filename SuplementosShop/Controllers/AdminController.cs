@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SuplementosShop.Repositories.Interfaces;
 
@@ -19,5 +20,7 @@ namespace SuplementosShop.Controllers
             var users = _userRepository.GetUsers();
             return View(users);
         }
+
+
     }
 }

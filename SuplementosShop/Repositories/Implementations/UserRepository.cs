@@ -6,9 +6,12 @@ namespace SuplementosShop.Repositories.Implementations
 {
     public class UserRepository : Repository, IUserRepository
     {
+
         public UserRepository(SuplementosShopContext context) : base(context)
         {
         }
+
+
 
         public ICollection<IdentityUser> GetUsers()
         {

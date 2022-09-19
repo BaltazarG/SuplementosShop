@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SuplementosShop.Entities;
+using SuplementosShop.Models;
 using SuplementosShop.Repositories.Interfaces;
 
 namespace SuplementosShop.Controllers
@@ -18,9 +19,12 @@ namespace SuplementosShop.Controllers
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee, Admin")]
         public IActionResult Index()
         {
-            var products = _productRepository.GetProducts();
 
-            return View(products);
+            ProductCategoryViewModel mymodel = new ProductCategoryViewModel();
+            mymodel.Products = _productRepository.GetProducts();
+            mymodel.Categories = _categoryRepository.GetCategories();
+
+            return View(mymodel);
         }
 
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]

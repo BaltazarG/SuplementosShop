@@ -1,27 +1,51 @@
-﻿@using SuplementosShop.Entities
-
-@model ICollection<Product>
+﻿
+@model ProductCategoryViewModel
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Market</h1>
+<div class="d-flex justify-content-between mb-3">
+    <h1>Market</h1>
+    <form method="post" asp-action="Index" asp-controller="Market" >
+     <select class="form-select" id="filter" onchange="this.form.submit()">
+         <option value="0" selected>All</option>
+         @foreach (var cat in Model.Categories)
+         {
+             <option value=@cat.Id>
+                 @cat.Name
+             </option>
+         }
+     </select>
+    </form>
 
-    @if(Model.Count() > 0)
+</div>
+
+
+    @if(Model.Products.Count() > 0)
     {
-        <div class="">
-            <div class="row row-cols-3 ">
-                @foreach (var prod in Model)
+        <div class="w-100">
+            <div class="row row-cols-4">
+                @foreach (var prod in Model.Products)
                 {
             
                          <div class="col mb-2">
                              <div class="card" style="width: 18rem;">
                                 <img src=@prod.ImageUrl class="card-img-top" height="250" alt=@prod.Name>
                                 <div class="card-body">
-                                    <h5 class="fw-bold">$@prod.Price</h5>
-                                    <h5 class="card-title">@prod.Name</h5>
+                                    <div class="d-flex">
+                                        <h5 class="fw-bold">$@prod.Price - </h5>
+                                        @foreach (var cat in Model.Categories)
+                                        {
+                                            if(cat.Id == prod.CategoryId){
+                                                <h5 class="mx-1 text-secondary">@cat.Name</h5>
+                                            }
+                                        }
+                                    </div>
+
+                                    <h5 class="card-title">@prod.Name</h5>  
                                     <p class="card-text">@prod.Description</p>
+                                    
                                     <btn class="btn btn-primary">Add to cart</btn>
                                 </div>
                              </div>

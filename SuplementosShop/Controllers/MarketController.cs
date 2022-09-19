@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SuplementosShop.Models;
 using SuplementosShop.Repositories.Interfaces;
+using System.Dynamic;
 
 namespace SuplementosShop.Controllers
 {
@@ -19,9 +21,13 @@ namespace SuplementosShop.Controllers
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
         public IActionResult Index()
         {
-            var products = _productRepository.GetProducts();
 
-            return View(products);
+            ProductCategoryViewModel mymodel = new ProductCategoryViewModel();
+            mymodel.Products = _productRepository.GetProducts();
+            mymodel.Categories = _categoryRepository.GetCategories();
+
+
+            return View(mymodel);
         }
     }
 }
