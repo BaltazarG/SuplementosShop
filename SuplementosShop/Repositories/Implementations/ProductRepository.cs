@@ -24,7 +24,7 @@ namespace SuplementosShop.Repositories.Implementations
 
         public void DeleteProduct(int productId)
         {
-            var product = _context.Products.FindAsync(productId);
+            var product = _context.Products.Find(productId);
 
             if (product == null)
                 return;

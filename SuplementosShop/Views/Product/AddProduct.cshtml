@@ -1,4 +1,4 @@
-﻿@model SuplementosShop.Entities.Product
+﻿@model SingleProductCategoryViewModel
 @{
     ViewData["Title"] = "AddProduct";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -14,37 +14,44 @@
 
         <div class="container" style="padding:30px">
             <div class="form-group">
-                <label asp-for="Name" class="form-label">Name</label>
-                <input asp-for="Name" class="form-control" type="text" />
-                <span asp-validation-for="Name" class="text-danger" />
+                <label asp-for="Product.Name" class="form-label">Name</label>
+                <input asp-for="Product.Name" class="form-control" type="text" />
+                <span asp-validation-for="Product.Name" class="text-danger" />
             </div>
             <div class="form-group">
-                <label asp-for="Description" class="form-label">Description</label>
-                <input asp-for="Description" class="form-control" type="text" />
-                <span asp-validation-for="Description" class="text-danger" />
+                <label asp-for="Product.Description" class="form-label">Description</label>
+                <input asp-for="Product.Description" class="form-control" type="text" />
+                <span asp-validation-for="Product.Description" class="text-danger" />
             </div>
             <div class="form-group">
-                <label asp-for="Price" class="form-label">Price</label>
-                <input asp-for="Price" class="form-control" type="number" />
-                <span asp-validation-for="Price" class="text-danger" />
+                <label asp-for="Product.Price" class="form-label">Price</label>
+                <input asp-for="Product.Price" class="form-control" type="number" />
+                <span asp-validation-for="Product.Price" class="text-danger" />
             </div>
             <div class="form-group">
-                <label asp-for="ImageUrl" class="form-label">Image Url</label>
-                <input asp-for="ImageUrl" class="form-control" type="text" />
-                <span asp-validation-for="ImageUrl" class="text-danger" />
+                <label asp-for="Product.ImageUrl" class="form-label">Image Url</label>
+                <input asp-for="Product.ImageUrl" class="form-control" type="text" />
+                <span asp-validation-for="Product.ImageUrl" class="text-danger" />
             </div>
             <div class="form-group">
-                <label asp-for="CategoryId" class="form-label">Category</label>
-                <input asp-for="CategoryId" class="form-control" type="number" />
-                <span asp-validation-for="CategoryId" class="text-danger" />
+                <label class="form-label" for="catSelected">Select a role</label>
+                <select id="catSelected" class="form-select" id="floatingSelect" asp-for="Product.CategoryId">
+                    @foreach (var cat in Model.Categories)
+                    {
+                        <option value="@cat.Id">
+                            @cat.Name
+                        </option>
+                    }
+                 </select>
             </div>
-  
         </div>
 
         <div class="container" style="padding:30px">
-            <div class="form-group">
-                <input type="submit" value="Add" class="btn btn-success form-control" />
+            <div class="form-group d-flex justify-content-end gap-2">
+                <a class="btn btn-secondary py-1 px-3 w-25" asp-controller="Product" asp-action="Index">Cancel</a>
+                <input type="submit" value="Add" class="btn btn-success form-control w-25" />
             </div>
-        </div> 
+        </div>
+
     </form>
 </div>

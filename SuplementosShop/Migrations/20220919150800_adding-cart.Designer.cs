@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SuplementosShop.Areas.Identity.Data;
 
@@ -11,9 +12,10 @@ using SuplementosShop.Areas.Identity.Data;
 namespace SuplementosShop.Migrations
 {
     [DbContext(typeof(SuplementosShopContext))]
-    partial class SuplementosShopContextModelSnapshot : ModelSnapshot
+    [Migration("20220919150800_adding-cart")]
+    partial class addingcart
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

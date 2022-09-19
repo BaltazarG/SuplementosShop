@@ -30,20 +30,22 @@ namespace SuplementosShop.Controllers
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
         public IActionResult AddProduct()
         {
+            SingleProductCategoryViewModel mymodel = new SingleProductCategoryViewModel();
+            mymodel.Categories = _categoryRepository.GetCategories();
 
-            return View();
+            return View(mymodel);
         }
 
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
-        public IActionResult Add(Product newProd)
+        public IActionResult Add(SingleProductCategoryViewModel newProd)
         {
 
 
-            var cat = _categoryRepository.GetCategoryById(newProd.CategoryId);
+            var cat = _categoryRepository.GetCategoryById(newProd.Product.CategoryId);
 
-            newProd.Category = cat;
+            newProd.Product.Category = cat;
 
-            _productRepository.AddProduct(newProd);
+            _productRepository.AddProduct(newProd.Product);
             return RedirectToAction("Index");
 
 
@@ -58,22 +60,25 @@ namespace SuplementosShop.Controllers
             }
             else
             {
-                var prod = _productRepository.GetProductById(id);
 
-                if (prod == null)
+                SingleProductCategoryViewModel mymodel = new SingleProductCategoryViewModel();
+                mymodel.Product = _productRepository.GetProductById(id);
+                mymodel.Categories = _categoryRepository.GetCategories();
+
+                if (mymodel.Product == null)
                 {
                     return NotFound("The product doesn't exist!");
                 }
 
-                return View(prod);
+                return View(mymodel);
             }
         }
 
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
-        public IActionResult Edit(Product updatedProd)
+        public IActionResult Edit(SingleProductCategoryViewModel prodToUpdate)
         {
 
-            _productRepository.UpdateProduct(updatedProd);
+            _productRepository.UpdateProduct(prodToUpdate.Product);
 
             return RedirectToAction("Index");
 
