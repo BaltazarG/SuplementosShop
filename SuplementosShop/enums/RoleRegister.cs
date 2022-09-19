@@ -3,6 +3,7 @@
     public enum RoleRegister
     {
         Customer,
-        Employeer
+        Employee,
+        Admin
     }
 }

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SuplementosShop.Repositories.Interfaces;
 
 namespace SuplementosShop.Controllers
@@ -14,6 +16,7 @@ namespace SuplementosShop.Controllers
             _categoryRepository = categoryRepository;
         }
 
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
         public IActionResult Index()
         {
             var products = _productRepository.GetProducts();

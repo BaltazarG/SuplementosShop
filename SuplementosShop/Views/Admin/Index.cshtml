@@ -1,0 +1,30 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model ICollection<IdentityUser>
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="display-4">Welcome <span class="text-success ">@UserManager.GetUserName(User)</span>!</h1>
+<h4 class="fw-normal ">🟢These are the users registered on the website</h4>
+        <table class="table table-borderless  table-hover border mt-3">
+            <tr class="table-secondary">
+                <th>Id</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th></th>
+            </tr>
+
+            @foreach (var user in Model)
+            {
+                <tr>
+                <td>@user.Id</td>
+                <td>@user.UserName</td>
+                <td>@user.Email</td>
+                <td><a class="btn btn-danger py-1 px-3" asp-controller="Admin" asp-action="DeleteUser" asp-route-id="@user.Id" >Delete</a></td>
+                </tr>
+            }
+        </table>

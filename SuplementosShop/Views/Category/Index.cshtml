@@ -7,7 +7,7 @@
 }
 
 <div class="d-flex justify-content-between align-items-baseline">
-<h1>Categories</h1>
+<h4>Categories</h4>
 
 <a class="btn btn-primary" asp-controller="Category" asp-action="AddCategory">
     Add category
@@ -16,9 +16,9 @@
 
 @if (Model.Count() > 0)
     {
-    <div class="card-body">
+    <div class="mt-2">
     
-        <table class="table table-striped border">
+        <table class="table table-borderless  table-hover border">
             <tr class="table-secondary">
                 <th>Id</th>
                 <th>Name</th>

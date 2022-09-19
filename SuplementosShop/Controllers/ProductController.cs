@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SuplementosShop.Entities;
 using SuplementosShop.Repositories.Interfaces;
 
@@ -13,7 +15,7 @@ namespace SuplementosShop.Controllers
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
         }
-
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee, Admin")]
         public IActionResult Index()
         {
             var products = _productRepository.GetProducts();
@@ -21,12 +23,14 @@ namespace SuplementosShop.Controllers
             return View(products);
         }
 
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
         public IActionResult AddProduct()
         {
 
             return View();
         }
 
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
         public IActionResult Add(Product newProd)
         {
 
@@ -41,6 +45,7 @@ namespace SuplementosShop.Controllers
 
         }
 
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
         public IActionResult EditProduct(int id)
         {
             if (id == 0 || id == null)
@@ -60,6 +65,7 @@ namespace SuplementosShop.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
         public IActionResult Edit(Product updatedProd)
         {
 
@@ -70,6 +76,7 @@ namespace SuplementosShop.Controllers
 
         }
 
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
         public IActionResult DeleteProduct(int id)
         {
             if (id == 0 || id == null)
@@ -88,13 +95,13 @@ namespace SuplementosShop.Controllers
 
         }
 
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
         public IActionResult Delete(int id)
         {
 
             _productRepository.DeleteProduct(id);
 
             return RedirectToAction("Index");
-
         }
     }
 }
