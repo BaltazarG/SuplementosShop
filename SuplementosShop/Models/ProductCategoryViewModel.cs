@@ -6,5 +6,8 @@ namespace SuplementosShop.Models
     {
         public IEnumerable<Product> Products { get; set; }
         public IEnumerable<Category> Categories { get; set; }
+        public string UserId { get; set; }
+        public int CurrentProductId { get; set; }
+        public int ProductQuantity { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using SuplementosShop.Models;
+using SuplementosShop.Repositories.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -18,16 +19,19 @@ namespace SuplementosShop.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
+        private readonly ICartRepository _cartRepository;
 
 
         public AuthController(
             UserManager<IdentityUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            IConfiguration configuration)
+            IConfiguration configuration, ICartRepository cartRepository)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
+            _cartRepository = cartRepository;
+
         }
         public IActionResult Index()
         {
@@ -45,6 +49,7 @@ namespace SuplementosShop.Controllers
                 var authClaims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
                     //new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 };
 
@@ -62,6 +67,8 @@ namespace SuplementosShop.Controllers
 
                 if (userRoles[0].ToString() == "Customer")
                     return RedirectToAction("Index", "Market");
+
+
 
                 if (userRoles[0].ToString() == "Employee")
                     return RedirectToAction("Index", "Product");
@@ -129,6 +136,7 @@ namespace SuplementosShop.Controllers
             var authClaims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
                     //new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 };
 
@@ -145,7 +153,10 @@ namespace SuplementosShop.Controllers
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
             if (model.RoleSelected == enums.RoleRegister.Customer)
+            {
+                _cartRepository.CreateCart(user.Id);
                 return RedirectToAction("Index", "Market");
+            }
 
             if (model.RoleSelected == enums.RoleRegister.Employee)
                 return RedirectToAction("Index", "Product");

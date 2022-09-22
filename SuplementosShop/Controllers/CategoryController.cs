@@ -16,7 +16,7 @@ namespace SuplementosShop.Controllers
             _categoryRepository = categoryService;
             _logger = logger;
         }
-        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
         public IActionResult Index()
         {
             var categories = _categoryRepository.GetCategories();

@@ -42,7 +42,7 @@ namespace SuplementosShop.Repositories.Implementations
 
         public ICollection<Product> GetProducts()
         {
-            ICollection<Product>? products = _context.Products.ToList();
+            ICollection<Product>? products = _context.Products.Include(c => c.Category).ToList();
 
             return products;
         }

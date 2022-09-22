@@ -5,14 +5,16 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+
+
 <div class="d-flex justify-content-between mb-3">
     <h1>Market</h1>
-    <form method="post" asp-action="Index" asp-controller="Market" >
-     <select class="form-select" id="filter" onchange="this.form.submit()">
+    <form method="post" asp-action="Index" asp-controller="Market">
+     <select class="form-select" id="filter" onchange="this.form.submit()" >
          <option value="0" selected>All</option>
          @foreach (var cat in Model.Categories)
          {
-             <option value=@cat.Id>
+             <option value=@cat.Id class="option-">
                  @cat.Name
              </option>
          }
@@ -21,37 +23,50 @@
 
 </div>
 
+<form method="post" asp-controller="Cart" asp-action="Index">
+    
+    @if(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) != null){
+        <input asp-for=UserId hidden value=@User.Identity.Name />
 
+    }
+
+    <button type="submit" class="btn btn-primary" value="Index">Cart</button>
+</form>
     @if(Model.Products.Count() > 0)
     {
         <div class="w-100">
             <div class="row row-cols-4">
                 @foreach (var prod in Model.Products)
                 {
-            
-                         <div class="col mb-2">
+                         <form class="col mb-2" asp-controller="Cart" asp-action="Add" method="post">
+
+                             <input asp-for=CurrentProductId hidden value=@prod.Id />
+
+                                 @if(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) != null){
+                                    <input asp-for=UserId hidden value=@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value />
+
+                                   }
+
                              <div class="card" style="width: 18rem;">
-                                <img src=@prod.ImageUrl class="card-img-top" height="250" alt=@prod.Name>
+                                <img src=@prod.ImageUrl class="card-img-top" height="255" alt=@prod.Name>
                                 <div class="card-body">
                                     <div class="d-flex">
                                         <h5 class="fw-bold">$@prod.Price - </h5>
-                                        @foreach (var cat in Model.Categories)
-                                        {
-                                            if(cat.Id == prod.CategoryId){
-                                                <h5 class="mx-1 text-secondary">@cat.Name</h5>
-                                            }
-                                        }
+                                        <h5 class="mx-1 text-secondary">@prod.Category.Name</h5>
                                     </div>
 
                                     <h5 class="card-title">@prod.Name</h5>  
                                     <p class="card-text">@prod.Description</p>
-                                    
-                                    <btn class="btn btn-primary">Add to cart</btn>
+                                    <input asp-for="ProductQuantity"/>
+                                    <button type="submit" class="btn btn-primary" value="Add">Add to cart</button>
+
+
                                 </div>
                              </div>
-                        </div>
+                        </form>
                
-                } 
+                }
+
             </div>
         </div>
     } else {<h5 class="text-warning">No products yet!</h5>}
