@@ -42,10 +42,8 @@
 
                              <input asp-for=CurrentProductId hidden value=@prod.Id />
 
-                                 @if(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) != null){
-                                    <input asp-for=UserId hidden value=@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value />
+                              <input asp-for=UserId hidden value=@User.Identity.Name />
 
-                                   }
 
                              <div class="card" style="width: 18rem;">
                                 <img src=@prod.ImageUrl class="card-img-top" height="255" alt=@prod.Name>

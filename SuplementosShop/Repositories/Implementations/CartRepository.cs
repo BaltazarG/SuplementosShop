@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using SuplementosShop.Areas.Identity.Data;
 using SuplementosShop.Entities;
 using SuplementosShop.Repositories.Interfaces;
@@ -7,6 +8,7 @@ namespace SuplementosShop.Repositories.Implementations
 {
     public class CartRepository : Repository, ICartRepository
     {
+
         public CartRepository(SuplementosShopContext context) : base(context)
         {
         }
@@ -22,38 +24,35 @@ namespace SuplementosShop.Repositories.Implementations
             _context.SaveChanges();
         }
 
-        public void AddItem(int productId, int quantity, string userId)
+        public void AddItem(int productId, int quantity, string username)
         {
-            var cart = _context.Carts.FirstOrDefault(c => c.UserId == userId);
-            var product = _context.Products.FirstOrDefault(p => p.Id == productId);
 
-            if (cart == null || product == null)
+
+            var cart = _context.Carts.FirstOrDefault(c => c.UserId == username);
+
+            if (cart == null)
                 return;
 
-            var newItem = new CartItem()
+
+            var cartitem = _context.CartItems.FirstOrDefault(c => c.ProductId == productId && c.CartId == cart.Id);
+
+            if (cartitem is null)
             {
-                ProductId = productId,
-                //Product = product,
-                Quantity = quantity,
-                CartId = cart.Id,
-                //Cart = cart
-            };
+                var newItem = new CartItem()
+                {
+                    ProductId = productId,
+                    Quantity = quantity,
+                    CartId = cart.Id,
+                };
 
-            //var item = _context.CartItems.FirstOrDefault(c => c.Id == cartItem.Id);
+                _context.CartItems.Add(newItem);
+                _context.SaveChanges();
+                return;
+            }
 
-            //if (item is null)
-            //{
-            //    _context.CartItems.Add(cartItem);
-            //    _context.SaveChanges();
-            //    return;
-            //}
-
-            //item.Quantity += cartItem.Quantity;
-
-
-
-            _context.CartItems.Add(newItem);
+            cartitem.Quantity += quantity;
             _context.SaveChanges();
+
         }
 
         public void DeleteItem(int itemId)

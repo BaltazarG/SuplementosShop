@@ -36,11 +36,13 @@ namespace SuplementosShop.Controllers
         }
 
         [HttpPost]
-        public IActionResult Add(ProductCategoryViewModel model)
+        public async Task<IActionResult> Add(ProductCategoryViewModel model)
         {
 
+            var user = await _userManager.FindByNameAsync(model.UserId);
+            var userId = user.Id;
 
-            _cartRepository.AddItem(model.CurrentProductId, model.ProductQuantity, model.UserId);
+            _cartRepository.AddItem(model.CurrentProductId, model.ProductQuantity, userId);
 
             return RedirectToAction("Index", "Market");
         }
