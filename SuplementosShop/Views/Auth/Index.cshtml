@@ -16,6 +16,7 @@
 <body>
     <div class="main-container bg-dark d-flex justify-content-center align-items-center flex-column">
         <form class="w-25 align-items-center" method="post" asp-controller="Auth" asp-action="Login">
+          <div asp-validation-summary="ModelOnly" class="text-danger"></div>
           <h2 class="text-light fw-bold mb-3">Login</h2>
           <div class="mb-3">
             <label for="exampleInputEmail1" class="form-label text-light">Username</label>

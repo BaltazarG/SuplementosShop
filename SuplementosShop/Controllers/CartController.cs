@@ -24,7 +24,6 @@ namespace SuplementosShop.Controllers
         }
         public async Task<IActionResult> Index(ProductCategoryViewModel model)
         {
-            //userId = "c5aa7f72-966c-4050-b415-6dda283a3da6";
 
             var user = await _userManager.FindByNameAsync(model.UserId);
             var userId = user.Id;
@@ -67,11 +66,20 @@ namespace SuplementosShop.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Delete(CartViewModel model)
+        public IActionResult Delete(CartViewModel model)
         {
 
 
             _cartRepository.DeleteItem(model.CurrentCartItemId);
+
+            return RedirectToAction("Index", "Market");
+        }
+
+        [HttpPost]
+        public IActionResult Edit(CartViewModel model)
+        {
+
+            _cartRepository.UpdateItem(model.CurrentCartItemId, model.QuantityUpdated);
 
             return RedirectToAction("Index", "Market");
         }

@@ -19,7 +19,6 @@ namespace SuplementosShop.Controllers
             _categoryRepository = categoryRepository;
         }
 
-        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
         public IActionResult Index()
         {
 

@@ -46,15 +46,15 @@
                                     </div>
                                     <h5 class="card-title">@item.Product.Name</h5>  
                                     <p class="card-text">@item.Product.Description</p>
-                                    <div class="d-flex w-100 justify-content-end">
-                                        <form method="post" asp-controller="Cart" asp-action="Edit" class="d-flex gap-1">
+                                    <div class="d-flex w-100 justify-content-end gap-1">
+                                        <form method="post" asp-controller="Cart" asp-action="Edit" class="d-flex justify-content-end gap-1">
 
                                             <input asp-for=UserId hidden value=@User.Identity.Name />   
                                         
 
                                             <input asp-for=CurrentCartItemId hidden value=@item.Id />
 
-                                            <input value="1" asp-for="@item.Quantity" class="form-control p-0 m-0 text-center w-25"/>
+                                            <input value="1" asp-for="QuantityUpdated" class="form-control p-0 m-0 text-center w-25" min="1" />
 
                                             <button type="submit" class="btn btn-outline-warning" value="Edit">Edit</button>
 

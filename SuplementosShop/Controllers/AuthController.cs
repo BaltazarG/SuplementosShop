@@ -41,6 +41,11 @@ namespace SuplementosShop.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginModel model)
         {
+
+            if (!ModelState.IsValid)
+                return RedirectToAction("Index");
+
+
             var user = await _userManager.FindByNameAsync(model.Username);
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
             {

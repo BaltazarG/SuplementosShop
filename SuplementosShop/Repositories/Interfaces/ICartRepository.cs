@@ -6,7 +6,7 @@ namespace SuplementosShop.Repositories.Interfaces
     {
         public void CreateCart(string userId);
         public void AddItem(int productId, int quantity, string userId);
-        public void UpdateItem(CartItem cartItem);
+        public void UpdateItem(int cartItemId, int quantity);
         public void DeleteItem(int itemId);
 
         public CartItem GetItem(int id);

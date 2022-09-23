@@ -6,6 +6,7 @@ using SuplementosShop.Repositories.Interfaces;
 
 namespace SuplementosShop.Controllers
 {
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
     public class CategoryController : Controller
     {
         private readonly ICategoryRepository _categoryRepository;
@@ -16,20 +17,17 @@ namespace SuplementosShop.Controllers
             _categoryRepository = categoryService;
             _logger = logger;
         }
-        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
         public IActionResult Index()
         {
             var categories = _categoryRepository.GetCategories();
             return View(categories);
         }
 
-        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
         public IActionResult AddCategory()
         {
             return View();
         }
 
-        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
         public IActionResult Add(Category newCat)
         {
             if (ModelState.IsValid)
@@ -41,7 +39,6 @@ namespace SuplementosShop.Controllers
             return RedirectToAction("Error", "Home");
         }
 
-        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
         public IActionResult EditCategory(int id)
         {
             if (id == 0 || id == null)
@@ -61,7 +58,6 @@ namespace SuplementosShop.Controllers
             }
         }
 
-        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
         public IActionResult Edit(Category updatedCat)
         {
             if (ModelState.IsValid)
@@ -73,7 +69,6 @@ namespace SuplementosShop.Controllers
 
             return RedirectToAction("Error", "Home");
         }
-        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
         public IActionResult DeleteCategory(int id)
         {
             if (id == 0 || id == null)
@@ -92,7 +87,6 @@ namespace SuplementosShop.Controllers
 
         }
 
-        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
         public IActionResult Delete(int id)
         {
 

@@ -85,14 +85,13 @@ namespace SuplementosShop.Repositories.Implementations
             return items;
         }
 
-        public void UpdateItem(CartItem cartItem)
+        public void UpdateItem(int cartItemId, int quantity)
         {
-            var item = _context.CartItems.FirstOrDefault(c => c.Id == cartItem.Id);
+            var item = _context.CartItems.FirstOrDefault(c => c.Id == cartItemId);
 
             if (item is null)
                 return;
-
-            _context.CartItems.Update(cartItem);
+            item.Quantity = quantity;
             _context.SaveChanges();
         }
     }
