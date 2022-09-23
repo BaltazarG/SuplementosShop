@@ -7,6 +7,7 @@ using System.Dynamic;
 
 namespace SuplementosShop.Controllers
 {
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Customer")]
     public class MarketController : Controller
     {
         private readonly IProductRepository _productRepository;

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SuplementosShop.Entities;
 using SuplementosShop.Models;
@@ -7,6 +9,7 @@ using System.Security.Claims;
 
 namespace SuplementosShop.Controllers
 {
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Customer")]
     public class CartController : Controller
     {
         private readonly ICartRepository _cartRepository;
@@ -28,11 +31,26 @@ namespace SuplementosShop.Controllers
 
 
             var items = _cartRepository.GetItems(userId);
+            var cartQuantity = 0;
+            var totalPrice = 0;
+
+            foreach (var item in items)
+            {
+                cartQuantity += item.Quantity;
+                totalPrice += (item.Product.Price * item.Quantity);
+            }
 
             if (items == null)
                 return RedirectToAction("Index", "Market");
 
-            return View(items);
+            CartViewModel vmodel = new CartViewModel()
+            {
+                CartItems = items,
+                CartQuantity = cartQuantity,
+                TotalPrice = totalPrice
+            };
+
+            return View(vmodel);
         }
 
         [HttpPost]
@@ -47,5 +65,15 @@ namespace SuplementosShop.Controllers
             return RedirectToAction("Index", "Market");
         }
 
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(CartViewModel model)
+        {
+
+
+            _cartRepository.DeleteItem(model.CurrentCartItemId);
+
+            return RedirectToAction("Index", "Market");
+        }
     }
 }

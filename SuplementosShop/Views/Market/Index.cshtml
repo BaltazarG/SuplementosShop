@@ -7,31 +7,21 @@
 
 
 
-<div class="d-flex justify-content-between mb-3">
-    <h1>Market</h1>
-    <form method="post" asp-action="Index" asp-controller="Market">
-     <select class="form-select" id="filter" onchange="this.form.submit()" >
-         <option value="0" selected>All</option>
-         @foreach (var cat in Model.Categories)
-         {
-             <option value=@cat.Id class="option-">
-                 @cat.Name
-             </option>
-         }
-     </select>
+<div class="d-flex justify-content-between mb-3 align-items-center">
+    <h3>Market</h3>
+    <form method="post" asp-controller="Cart" asp-action="Index">
+    
+        @if(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) != null)
+        {
+            <input asp-for=UserId hidden value=@User.Identity.Name />   
+        }
+
+        <button type="submit" class="btn btn-success" value="Index">Cart</button>
     </form>
 
 </div>
 
-<form method="post" asp-controller="Cart" asp-action="Index">
-    
-    @if(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) != null){
-        <input asp-for=UserId hidden value=@User.Identity.Name />
 
-    }
-
-    <button type="submit" class="btn btn-primary" value="Index">Cart</button>
-</form>
     @if(Model.Products.Count() > 0)
     {
         <div class="w-100">
@@ -55,8 +45,11 @@
 
                                     <h5 class="card-title">@prod.Name</h5>  
                                     <p class="card-text">@prod.Description</p>
-                                    <input asp-for="ProductQuantity"/>
-                                    <button type="submit" class="btn btn-primary" value="Add">Add to cart</button>
+                                    <div class="d-flex justify-content-end gap-1 w-100">
+                                        <input value="1" asp-for="ProductQuantity" class="form-control p-0 m-0 text-center w-25"/>
+                                        <button type="submit" class="btn btn-outline-success  " value="Add">+ 🛒</button>
+                                    </div>
+
 
 
                                 </div>
