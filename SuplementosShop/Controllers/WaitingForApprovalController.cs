@@ -75,7 +75,7 @@ namespace SuplementosShop.Controllers
             await _userManager.RemoveFromRoleAsync(user, "WaitingForApproval");
 
 
-            return RedirectToAction("Index", "WaitingForApproval");
+            return RedirectToAction("Index", "Admin");
         }
 
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
@@ -90,7 +90,7 @@ namespace SuplementosShop.Controllers
 
             await _userManager.DeleteAsync(user);
 
-            return RedirectToAction("Index", "WaitingForApproval");
+            return RedirectToAction("Index", "Admin");
         }
     }
 }
