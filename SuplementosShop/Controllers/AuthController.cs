@@ -58,17 +58,31 @@ namespace SuplementosShop.Controllers
                     //new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 };
 
+
+                var token = TokenGenerator(authClaims);
+
+
+                var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
+                identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id));
+                identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName));
+
                 foreach (var userRole in userRoles)
                 {
-                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                    identity.AddClaim(new Claim(ClaimTypes.Role, userRole));
                 }
+                var principal = new ClaimsPrincipal(identity);
 
-                var token = GetToken(authClaims);
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    principal,
+                    new AuthenticationProperties
+                    {
+                        IsPersistent = true,
+                        AllowRefresh = true,
+                        ExpiresUtc = DateTime.UtcNow.AddDays(1)
+                    });
 
-                var claimsIdentity = new ClaimsIdentity(authClaims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
                 if (userRoles[0].ToString() == "Customer")
                     return RedirectToAction("Index", "Market");
@@ -111,7 +125,7 @@ namespace SuplementosShop.Controllers
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+                return StatusCode(StatusCodes.Status500InternalServerError);
 
 
             if (model.RoleSelected == enums.RoleRegister.Customer)
@@ -132,14 +146,6 @@ namespace SuplementosShop.Controllers
 
             }
 
-            if (model.RoleSelected == enums.RoleRegister.Admin)
-            {
-                if (!await _roleManager.RoleExistsAsync("Admin"))
-                    await _roleManager.CreateAsync(new IdentityRole("Admin"));
-
-                await _userManager.AddToRoleAsync(user, "Admin");
-
-            }
 
             var userRoles = await _userManager.GetRolesAsync(user);
 
@@ -147,7 +153,6 @@ namespace SuplementosShop.Controllers
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
                     new Claim(ClaimTypes.NameIdentifier, user.Id),
-                    //new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 };
 
             foreach (var userRole in userRoles)
@@ -155,7 +160,7 @@ namespace SuplementosShop.Controllers
                 authClaims.Add(new Claim(ClaimTypes.Role, userRole));
             }
 
-            var token = GetToken(authClaims);
+            var token = TokenGenerator(authClaims);
 
             var claimsIdentity = new ClaimsIdentity(authClaims, CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -183,14 +188,14 @@ namespace SuplementosShop.Controllers
             return RedirectToAction("Login", "Auth");
         }
 
-        private JwtSecurityToken GetToken(List<Claim> authClaims)
+        private JwtSecurityToken TokenGenerator(List<Claim> authClaims)
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["JWT:ValidIssuer"],
                 audience: _configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddHours(3),
+                expires: DateTime.Now.AddHours(4),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
                 );

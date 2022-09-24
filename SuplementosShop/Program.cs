@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
 using SuplementosShop.Areas.Identity.Data;
 using SuplementosShop.Repositories.Implementations;
 using SuplementosShop.Repositories.Interfaces;
-
-
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,35 +27,49 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<SuplementosShopContext>()
     .AddDefaultTokenProviders();
 
-//builder.Services.AddAuthentication(options =>
-//{
-//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-//})
-//.AddJwtBearer(options =>
-// {
-//     options.SaveToken = true;
-//     options.RequireHttpsMetadata = false;
-//     options.TokenValidationParameters = new TokenValidationParameters()
-//     {
-//         ValidateIssuer = true,
-//         ValidateAudience = true,
-//         ValidAudience = builder.Configuration["JWT:ValidAudience"],
-//         ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-//         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
-//     };
-// });
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(option =>
+
+//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+//    .AddCookie(option =>
+//    {
+//        option.LoginPath = "/Auth/Login";
+//        option.ExpireTimeSpan = TimeSpan.FromMinutes(45);
+//        option.AccessDeniedPath = "/Home/Index";
+//    });
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = "JWT_OR_COOKIE";
+    options.DefaultChallengeScheme = "JWT_OR_COOKIE";
+})
+    .AddCookie(options =>
     {
-        option.LoginPath = "/Auth/Login";
-        option.ExpireTimeSpan = TimeSpan.FromMinutes(45);
-        option.AccessDeniedPath = "/Home/Index";
+        options.LoginPath = "/login";
+        options.ExpireTimeSpan = TimeSpan.FromDays(1);
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["JWT:ValidAudience"],
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
+        };
+    })
+    .AddPolicyScheme("JWT_OR_COOKIE", "JWT_OR_COOKIE", options =>
+    {
+        options.ForwardDefaultSelector = context =>
+        {
+            string authorization = context.Request.Headers[HeaderNames.Authorization];
+            if (!string.IsNullOrEmpty(authorization) && authorization.StartsWith("Bearer "))
+                return JwtBearerDefaults.AuthenticationScheme;
+
+            return CookieAuthenticationDefaults.AuthenticationScheme;
+        };
     });
-
-
 
 builder.Services.AddRazorPages();
 
