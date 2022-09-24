@@ -33,7 +33,7 @@ namespace SuplementosShop.Controllers
             _cartRepository = cartRepository;
 
         }
-        public IActionResult Index()
+        public IActionResult Login()
         {
             return View();
         }
@@ -43,7 +43,7 @@ namespace SuplementosShop.Controllers
         {
 
             if (!ModelState.IsValid)
-                return RedirectToAction("Index");
+                return View();
 
 
             var user = await _userManager.FindByNameAsync(model.Username);
@@ -81,7 +81,7 @@ namespace SuplementosShop.Controllers
 
                 return RedirectToAction("Index", "Category");
             }
-            return RedirectToAction("Index");
+            return View();
         }
 
         [HttpGet]
@@ -91,8 +91,13 @@ namespace SuplementosShop.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterModel model)
+        public async Task<IActionResult> SignUp(RegisterModel model)
         {
+
+
+            if (!ModelState.IsValid)
+                return View();
+
             var userExists = await _userManager.FindByNameAsync(model.UserName);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
@@ -120,10 +125,10 @@ namespace SuplementosShop.Controllers
 
             if (model.RoleSelected == enums.RoleRegister.Employee)
             {
-                if (!await _roleManager.RoleExistsAsync("Employee"))
-                    await _roleManager.CreateAsync(new IdentityRole("Employee"));
+                if (!await _roleManager.RoleExistsAsync("WaitingForApproval"))
+                    await _roleManager.CreateAsync(new IdentityRole("WaitingForApproval"));
 
-                await _userManager.AddToRoleAsync(user, "Employee");
+                await _userManager.AddToRoleAsync(user, "WaitingForApproval");
 
             }
 
@@ -164,7 +169,7 @@ namespace SuplementosShop.Controllers
             }
 
             if (model.RoleSelected == enums.RoleRegister.Employee)
-                return RedirectToAction("Index", "Product");
+                return RedirectToAction("Index", "WaitingForApproval");
 
 
             return RedirectToAction("Index", "Category");
@@ -175,7 +180,7 @@ namespace SuplementosShop.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Index", "Auth");
+            return RedirectToAction("Login", "Auth");
         }
 
         private JwtSecurityToken GetToken(List<Claim> authClaims)

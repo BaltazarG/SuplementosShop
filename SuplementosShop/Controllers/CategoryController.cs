@@ -28,15 +28,16 @@ namespace SuplementosShop.Controllers
             return View();
         }
 
-        public IActionResult Add(Category newCat)
+        [HttpPost]
+        public IActionResult AddCategory(Category newCat)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _categoryRepository.AddCategory(newCat);
-                return RedirectToAction("Index");
+                return View();
             }
 
-            return RedirectToAction("Error", "Home");
+            _categoryRepository.AddCategory(newCat);
+            return RedirectToAction("Index");
         }
 
         public IActionResult EditCategory(int id)

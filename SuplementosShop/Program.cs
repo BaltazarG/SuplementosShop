@@ -48,7 +48,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(option =>
     {
-        option.LoginPath = "/Auth/Index";
+        option.LoginPath = "/Auth/Login";
         option.ExpireTimeSpan = TimeSpan.FromMinutes(45);
         option.AccessDeniedPath = "/Home/Index";
     });
@@ -87,6 +87,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Auth}/{action=Index}/{id?}");
+    pattern: "{controller=Auth}/{action=Login}/{id?}");
 
 app.Run();

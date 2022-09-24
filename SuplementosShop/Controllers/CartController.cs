@@ -33,23 +33,38 @@ namespace SuplementosShop.Controllers
             var cartQuantity = 0;
             var totalPrice = 0;
 
-            foreach (var item in items)
+            if (items != null)
             {
-                cartQuantity += item.Quantity;
-                totalPrice += (item.Product.Price * item.Quantity);
+                foreach (var item in items)
+                {
+                    cartQuantity += item.Quantity;
+                    totalPrice += (item.Product.Price * item.Quantity);
+                }
+
+
+
+                CartViewModel vmodel = new CartViewModel()
+                {
+                    CartItems = items,
+                    CartQuantity = cartQuantity,
+                    TotalPrice = totalPrice
+                };
+
+                return View(vmodel);
             }
 
-            if (items == null)
-                return RedirectToAction("Index", "Market");
-
-            CartViewModel vmodel = new CartViewModel()
+            CartViewModel vmodel2 = new CartViewModel()
             {
-                CartItems = items,
+                CartItems = new List<CartItem>(),
                 CartQuantity = cartQuantity,
                 TotalPrice = totalPrice
             };
 
-            return View(vmodel);
+            return View(vmodel2);
+
+
+
+
         }
 
         [HttpPost]
@@ -80,6 +95,7 @@ namespace SuplementosShop.Controllers
         {
 
             _cartRepository.UpdateItem(model.CurrentCartItemId, model.QuantityUpdated);
+
 
             return RedirectToAction("Index", "Market");
         }

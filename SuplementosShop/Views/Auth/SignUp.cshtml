@@ -15,7 +15,7 @@
 </head>
 <body>
     <div class="main-container bg-dark d-flex justify-content-center align-items-center flex-column">
-        <form class="w-25 align-items-center" method="post" asp-controller="Auth" asp-action="Register">
+        <form class="w-25 align-items-center" method="post" asp-controller="Auth" asp-action="SignUp">
           <h2 class="text-light fw-bold mb-3">Sign Up</h2>
           <div class="mb-3">
             <label for="exampleInputEmail1" class="form-label text-light">First Name</label>
@@ -50,7 +50,7 @@
            </div>
 
           <div class=" d-flex justify-content-between gap-2 align-items-baseline">
-              <a class="text-primary text-decoration-none fs-6 fst-italic" asp-controller="Auth" asp-action="Index">Do you have an account?</a>
+              <a class="text-primary text-decoration-none fs-6 fst-italic" asp-controller="Auth" asp-action="Login">Do you have an account?</a>
               <button type="submit" class="btn btn-primary">Sign Up</button>
           </div>
           

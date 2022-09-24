@@ -1,0 +1,46 @@
+﻿@model ApproveUsersViewModel
+@{
+    ViewData["Title"] = "ApproveUser";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+
+<div class="d-flex justify-content-between align-items-baseline">
+    <h4>Employees waiting for approval</h4>
+</div>
+
+@if (Model.UsersWaitingForApproval.Count() > 0)
+    {
+    <div class="mt-2">
+    
+        <table class="table table-borderless  table-hover border">
+            <tr class="table-secondary">
+                <th>Id</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th></th>
+                <th></th>
+            </tr>
+
+            @foreach (var user in Model.UsersWaitingForApproval)
+            {
+                <form method="post" asp-controller="WaitingForApproval">
+                    <tr>
+                        <input asp-for=CurrentUserId  hidden value=@user.Id />
+                        <td>@user.Id</td>
+                        <td>@user.UserName</td>
+                        <td>@user.Email</td>
+                        <td><button type="submit" class="btn btn-danger py-1 px-3" value="Delete" asp-action="Delete">Delete</button></td>
+                        <td><button type="submit" class="btn btn-success py-1 px-3" value="Approve" asp-action="Approve">Approve</button></td>
+                    </tr>
+                </form>
+
+            }
+        </table>
+
+
+    
+    </div> } else {<h5 class="text-warning">No employees waiting for approval yet!</h5>}
