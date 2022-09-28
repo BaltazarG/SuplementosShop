@@ -11,18 +11,22 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Traigo el connection string y creo el context con sql server
 var connectionString = builder.Configuration.GetConnectionString("SuplementosShopContextConnection") ?? throw new InvalidOperationException("Connection string 'SuplementosShopContextConnection' not found.");
 
 builder.Services.AddDbContext<SuplementosShopContext>(options =>
     options.UseSqlServer(connectionString));
+
+
+// agrego identity y seteo requisitos minimos para las contraseñas
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = false;
     options.Password.RequiredLength = 4;
     options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
 })
     .AddEntityFrameworkStores<SuplementosShopContext>()
     .AddDefaultTokenProviders();
@@ -36,6 +40,9 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 //        option.ExpireTimeSpan = TimeSpan.FromMinutes(45);
 //        option.AccessDeniedPath = "/Home/Index";
 //    });
+
+
+// Agrego autenticacion por cookies o jwt
 
 builder.Services.AddAuthentication(options =>
 {
@@ -76,7 +83,12 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddControllersWithViews();
 
+// agrego esto para guardar el token en una cookie
+
 builder.Services.AddHttpContextAccessor();
+
+
+// agrego los servicios que uso
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();

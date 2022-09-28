@@ -207,6 +207,8 @@ namespace SuplementosShop.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            _httpContextAccessor.HttpContext.Response.Cookies.Delete("Token");
+
             return RedirectToAction("Login", "Auth");
         }
 
