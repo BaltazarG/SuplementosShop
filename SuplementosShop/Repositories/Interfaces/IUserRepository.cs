@@ -4,6 +4,6 @@ namespace SuplementosShop.Repositories.Interfaces
 {
     public interface IUserRepository
     {
-        public ICollection<IdentityUser> GetUsers();
+        public Task<ICollection<IdentityUser>> GetUsers();
     }
 }

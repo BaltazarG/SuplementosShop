@@ -12,53 +12,54 @@ namespace SuplementosShop.Repositories.Implementations
         {
 
         }
-
-        public void AddCategory(Category category)
+        public async Task AddCategory(Category category)
         {
             if (category == null)
                 throw new ArgumentNullException(nameof(category));
 
-            _context.Categories.Add(category);
+            await _context.Categories.AddAsync(category);
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
         }
 
-        public void DeleteCategory(int categoryId)
+        public async Task DeleteCategory(int categoryId)
         {
-            var category = _context.Categories.Find(categoryId);
+            var category = await _context.Categories.FindAsync(categoryId);
 
             if (category == null)
                 return;
 
             _context.Remove(category);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public Category GetCategoryById(int categoryId)
+
+
+        public async Task<Category?> GetCategoryById(int categoryId)
         {
 
-            Category? category = _context.Categories.Find(categoryId);
+            Category? category = await _context.Categories.FindAsync(categoryId);
 
             return category;
         }
 
-        public ICollection<Category> GetCategories()
+        public async Task<ICollection<Category?>> GetCategories()
         {
-            ICollection<Category>? categories = _context.Categories.ToList();
+            var categories = await _context.Categories.ToListAsync();
 
             return categories;
         }
 
-        public void UpdateCategory(Category category)
+        public async Task UpdateCategory(Category category)
         {
-            var categoryToUpdate = GetCategoryById(category.Id);
+            var categoryToUpdate = await GetCategoryById(category.Id);
 
 
             _context.Categories.Remove(categoryToUpdate);
-            _context.Categories.Add(category);
+            await _context.Categories.AddAsync(category);
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -20,18 +20,18 @@ namespace SuplementosShop.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
         private readonly ICartRepository _cartRepository;
-
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public AuthController(
             UserManager<IdentityUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            IConfiguration configuration, ICartRepository cartRepository)
+            IConfiguration configuration, ICartRepository cartRepository, IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
             _cartRepository = cartRepository;
-
+            _httpContextAccessor = httpContextAccessor;
         }
         public IActionResult Login()
         {
@@ -59,7 +59,7 @@ namespace SuplementosShop.Controllers
                 };
 
 
-                var token = TokenGenerator(authClaims);
+                var token = TokenGenerator(authClaims).ToString();
 
 
                 var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
@@ -72,6 +72,12 @@ namespace SuplementosShop.Controllers
                 }
                 var principal = new ClaimsPrincipal(identity);
 
+
+                // agrego el token a la cookie
+                _httpContextAccessor.HttpContext.Response.Cookies.Append("Token", token, new CookieOptions { HttpOnly = true, Secure = true });
+
+                // inicio de sesion
+
                 await HttpContext.SignInAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     principal,
@@ -83,6 +89,7 @@ namespace SuplementosShop.Controllers
                     });
 
 
+                // dependiendo el role del usuario loggeado, lo redirijo a una vista
 
                 if (userRoles[0].ToString() == "Customer")
                     return RedirectToAction("Index", "Market");
@@ -91,6 +98,9 @@ namespace SuplementosShop.Controllers
 
                 if (userRoles[0].ToString() == "Employee")
                     return RedirectToAction("Index", "Product");
+
+                if (userRoles[0].ToString() == "WaitingForApproval")
+                    return RedirectToAction("Index", "WaitingForApproval");
 
 
                 return RedirectToAction("Index", "Category");
@@ -127,6 +137,8 @@ namespace SuplementosShop.Controllers
             if (!result.Succeeded)
                 return StatusCode(StatusCodes.Status500InternalServerError);
 
+            // Añado el role pedido por el usuario, pero en caso de seleccionar empleado, entrará en espera de ser aprobado por el administrador
+
 
             if (model.RoleSelected == enums.RoleRegister.Customer)
             {
@@ -160,16 +172,26 @@ namespace SuplementosShop.Controllers
                 authClaims.Add(new Claim(ClaimTypes.Role, userRole));
             }
 
-            var token = TokenGenerator(authClaims);
+            var token = TokenGenerator(authClaims).ToString();
 
             var claimsIdentity = new ClaimsIdentity(authClaims, CookieAuthenticationDefaults.AuthenticationScheme);
 
 
+            //agrego el token a la cookie
+
+            _httpContextAccessor.HttpContext.Response.Cookies.Append("Token", token, new CookieOptions { HttpOnly = true, Secure = true });
+
+            // inicio sesion  despues de registrarse
+
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+            // dependiendo el role del usuario loggeado, lo redirijo a una vista
+
 
             if (model.RoleSelected == enums.RoleRegister.Customer)
             {
-                _cartRepository.CreateCart(user.Id);
+                // le creo un carrito
+                await _cartRepository.CreateCart(user.Id);
                 return RedirectToAction("Index", "Market");
             }
 
@@ -187,6 +209,9 @@ namespace SuplementosShop.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Auth");
         }
+
+
+        // Genero el token
 
         private JwtSecurityToken TokenGenerator(List<Claim> authClaims)
         {

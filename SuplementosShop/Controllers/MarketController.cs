@@ -19,12 +19,13 @@ namespace SuplementosShop.Controllers
             _categoryRepository = categoryRepository;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            // en un view model meto todas las categorias y productos cargados para mostrarlos en las vistas
 
             ProductCategoryViewModel mymodel = new ProductCategoryViewModel();
-            mymodel.Products = _productRepository.GetProducts();
-            mymodel.Categories = _categoryRepository.GetCategories();
+            mymodel.Products = await _productRepository.GetProducts();
+            mymodel.Categories = await _categoryRepository.GetCategories();
 
 
             return View(mymodel);

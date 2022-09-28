@@ -76,7 +76,7 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddControllersWithViews();
 
-
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();

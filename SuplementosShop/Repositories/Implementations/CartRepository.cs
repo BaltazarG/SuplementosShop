@@ -13,29 +13,31 @@ namespace SuplementosShop.Repositories.Implementations
         {
         }
 
-        public void CreateCart(string userId)
+        //creo el carrito al momento del registro del usuario como cliente
+        public async Task CreateCart(string userId)
         {
             var cart = new Cart()
             {
                 UserId = userId,
                 CartItems = new List<CartItem>()
             };
-            _context.Carts.Add(cart);
-            _context.SaveChanges();
+            await _context.Carts.AddAsync(cart);
+            await _context.SaveChangesAsync();
         }
 
-        public void AddItem(int productId, int quantity, string username)
+        public async Task AddItem(int productId, int quantity, string username)
         {
 
-
-            var cart = _context.Carts.FirstOrDefault(c => c.UserId == username);
+            //traigo el carrito del usuario
+            var cart = await _context.Carts.FirstOrDefaultAsync(c => c.UserId == username);
 
             if (cart == null)
                 return;
 
+            //traigo un item del carrito que tenga ese producto y este en el carrito del usuario
+            var cartitem = await _context.CartItems.FirstOrDefaultAsync(c => c.ProductId == productId && c.CartId == cart.Id);
 
-            var cartitem = _context.CartItems.FirstOrDefault(c => c.ProductId == productId && c.CartId == cart.Id);
-
+            // si es null creo un nuevo item con el producto, cantidad e Id del carrito del usuario
             if (cartitem is null)
             {
                 var newItem = new CartItem()
@@ -45,54 +47,68 @@ namespace SuplementosShop.Repositories.Implementations
                     CartId = cart.Id,
                 };
 
-                _context.CartItems.Add(newItem);
-                _context.SaveChanges();
+                await _context.CartItems.AddAsync(newItem);
+                await _context.SaveChangesAsync();
                 return;
             }
+            // pero si no es null, le sumo la cantidad al item encontrado
 
             cartitem.Quantity += quantity;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
         }
 
-        public void DeleteItem(int itemId)
+        // elimino el producto del carrito
+        public async Task DeleteItem(int itemId)
         {
-            var item = _context.CartItems.FirstOrDefault(c => c.Id == itemId);
+            var item = await _context.CartItems.FirstOrDefaultAsync(c => c.Id == itemId);
 
             if (item is null)
                 return;
 
             _context.CartItems.Remove(item);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public CartItem GetItem(int itemId)
+
+        //traigo un item por id
+        public async Task<CartItem?> GetItem(int itemId)
         {
-            var item = _context.CartItems.FirstOrDefault(c => c.Id == itemId);
+            var item = await _context.CartItems.FirstOrDefaultAsync(c => c.Id == itemId);
 
             if (item is null)
                 return null;
             return item;
         }
 
-        public ICollection<CartItem> GetItems(string userId)
+
+        //traigo todos los items del carrito de un usuario
+        public async Task<ICollection<CartItem?>> GetItems(string userId)
         {
-            var cart = _context.Carts.Where(c => c.UserId == userId).FirstOrDefault();
+            var cart = await _context.Carts.Where(c => c.UserId == userId).FirstOrDefaultAsync();
             if (cart is null)
                 return null;
 
-            var items = _context.CartItems.Where(c => c.CartId == cart.Id).Include(d => d.Product).ThenInclude(g => g.Category).ToList();
+            //incluyo la categoria
+            var items = await _context.CartItems.Where(c => c.CartId == cart.Id).Include(d => d.Product).ThenInclude(g => g.Category).ToListAsync();
             return items;
         }
 
-        public void UpdateItem(int cartItemId, int quantity)
+
+        //actualizo la cantidad de un item del carrito
+        public async Task UpdateItem(int cartItemId, int quantity)
         {
-            var item = _context.CartItems.FirstOrDefault(c => c.Id == cartItemId);
+            var item = await _context.CartItems.FirstOrDefaultAsync(c => c.Id == cartItemId);
 
             if (item is null)
                 return;
             item.Quantity = quantity;
-            _context.SaveChanges();
+
+            // si la cantidad es 0 lo elimino del carrito
+            if (item.Quantity <= 0)
+                _context.CartItems.Remove(item);
+
+            await _context.SaveChangesAsync();
         }
     }
 }

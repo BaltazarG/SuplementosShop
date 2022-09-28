@@ -4,11 +4,11 @@ namespace SuplementosShop.Repositories.Interfaces
 {
     public interface IProductRepository
     {
-        ICollection<Product> GetProducts();
-        Product GetProductById(int productId);
-        ICollection<Product> GetProductsByCategory(int categoryId);
-        void UpdateProduct(Product product);
-        void DeleteProduct(int productId);
-        void AddProduct(Product product);
+        Task<IEnumerable<Product?>> GetProducts();
+        Task<Product?> GetProductById(int productId);
+        Task<IEnumerable<Product?>> GetProductsByCategory(int categoryId);
+        Task UpdateProduct(Product product);
+        Task DeleteProduct(int productId);
+        Task AddProduct(Product product);
     }
 }

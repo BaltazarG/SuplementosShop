@@ -24,15 +24,18 @@ namespace SuplementosShop.Controllers
         }
         public async Task<IActionResult> Index(ProductCategoryViewModel model)
         {
-
+            //traigo el usuario loggeado
             var user = await _userManager.FindByNameAsync(model.UserId);
             var userId = user.Id;
 
+            //traigo los items del carrito del usuario loggeado
 
-            var items = _cartRepository.GetItems(userId);
+            var items = await _cartRepository.GetItems(userId);
             var cartQuantity = 0;
             var totalPrice = 0;
 
+
+            // calculo el precio total y la cantidad de items del carrito
             if (items != null)
             {
                 foreach (var item in items)
@@ -70,31 +73,34 @@ namespace SuplementosShop.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(ProductCategoryViewModel model)
         {
+            //traigo el usuario loggeado
 
             var user = await _userManager.FindByNameAsync(model.UserId);
             var userId = user.Id;
 
-            _cartRepository.AddItem(model.CurrentProductId, model.ProductQuantity, userId);
+
+            // agrego el item al carrito del usuario
+            await _cartRepository.AddItem(model.CurrentProductId, model.ProductQuantity, userId);
 
             return RedirectToAction("Index", "Market");
         }
 
 
         [HttpPost]
-        public IActionResult Delete(CartViewModel model)
+        public async Task<IActionResult> Delete(CartViewModel model)
         {
 
-
-            _cartRepository.DeleteItem(model.CurrentCartItemId);
+            //elimino el item
+            await _cartRepository.DeleteItem(model.CurrentCartItemId);
 
             return RedirectToAction("Index", "Market");
         }
 
         [HttpPost]
-        public IActionResult Edit(CartViewModel model)
+        public async Task<IActionResult> Edit(CartViewModel model)
         {
-
-            _cartRepository.UpdateItem(model.CurrentCartItemId, model.QuantityUpdated);
+            // actualizo la cantidad del item
+            await _cartRepository.UpdateItem(model.CurrentCartItemId, model.QuantityUpdated);
 
 
             return RedirectToAction("Index", "Market");

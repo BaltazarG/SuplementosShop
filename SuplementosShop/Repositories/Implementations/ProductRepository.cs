@@ -11,58 +11,58 @@ namespace SuplementosShop.Repositories.Implementations
         {
         }
 
-        public void AddProduct(Product product)
+        public async Task AddProduct(Product product)
         {
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
-            _context.Products.Add(product);
+            await _context.Products.AddAsync(product);
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
         }
 
-        public void DeleteProduct(int productId)
+        public async Task DeleteProduct(int productId)
         {
-            var product = _context.Products.Find(productId);
+            var product = await _context.Products.FindAsync(productId);
 
             if (product == null)
                 return;
 
             _context.Remove(product);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public Product GetProductById(int productId)
+        public async Task<Product?> GetProductById(int productId)
         {
-            Product? product = _context.Products.Find(productId);
+            Product? product = await _context.Products.FindAsync(productId);
 
             return product;
         }
 
-        public ICollection<Product> GetProducts()
+        public async Task<IEnumerable<Product?>> GetProducts()
         {
-            ICollection<Product>? products = _context.Products.Include(c => c.Category).ToList();
+            IEnumerable<Product>? products = await _context.Products.Include(c => c.Category).ToListAsync();
 
             return products;
         }
 
-        public ICollection<Product> GetProductsByCategory(int categoryId)
+        public async Task<IEnumerable<Product?>> GetProductsByCategory(int categoryId)
         {
-            ICollection<Product>? products = _context.Products.Where(p => p.CategoryId == categoryId).ToList();
+            IEnumerable<Product?> products = await _context.Products.Where(p => p.CategoryId == categoryId).ToListAsync();
 
             return products;
         }
 
-        public void UpdateProduct(Product product)
+        public async Task UpdateProduct(Product product)
         {
-            var productToUpdate = GetProductById(product.Id);
+            var productToUpdate = await GetProductById(product.Id);
 
 
             _context.Products.Remove(productToUpdate);
-            _context.Products.Add(product);
+            await _context.Products.AddAsync(product);
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using SuplementosShop.Areas.Identity.Data;
 using SuplementosShop.Repositories.Interfaces;
 
@@ -13,9 +14,9 @@ namespace SuplementosShop.Repositories.Implementations
 
 
 
-        public ICollection<IdentityUser> GetUsers()
+        public async Task<ICollection<IdentityUser>> GetUsers()
         {
-            return _context.Users.ToList();
+            return await _context.Users.ToListAsync();
         }
     }
 }
