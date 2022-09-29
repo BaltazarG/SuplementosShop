@@ -18,5 +18,6 @@ namespace SuplementosShop.Repositories.Implementations
         {
             return await _context.Users.ToListAsync();
         }
+
     }
 }
