@@ -15,9 +15,10 @@ namespace SuplementosShop.Controllers
             _userRepository = userRepository;
         }
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var users = _userRepository.GetUsers();
+            // traigo todos los usuarios registrados
+            var users = await _userRepository.GetUsers();
             return View(users);
         }
 

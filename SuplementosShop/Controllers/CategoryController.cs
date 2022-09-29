@@ -17,9 +17,10 @@ namespace SuplementosShop.Controllers
             _categoryRepository = categoryService;
             _logger = logger;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var categories = _categoryRepository.GetCategories();
+            //traigo todas las categorias cargadas
+            var categories = await _categoryRepository.GetCategories();
             return View(categories);
         }
 
@@ -29,18 +30,19 @@ namespace SuplementosShop.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddCategory(Category newCat)
+        public async Task<IActionResult> AddCategory(Category newCat)
         {
             if (!ModelState.IsValid)
             {
                 return View();
             }
 
-            _categoryRepository.AddCategory(newCat);
+            //agrego categoria
+            await _categoryRepository.AddCategory(newCat);
             return RedirectToAction("Index");
         }
 
-        public IActionResult EditCategory(int id)
+        public async Task<IActionResult> EditCategory(int id)
         {
             if (id == 0 || id == null)
             {
@@ -48,7 +50,9 @@ namespace SuplementosShop.Controllers
             }
             else
             {
-                var category = _categoryRepository.GetCategoryById(id);
+
+                // traigo la categoria a actualizar
+                var category = await _categoryRepository.GetCategoryById(id);
 
                 if (category == null)
                 {
@@ -59,18 +63,19 @@ namespace SuplementosShop.Controllers
             }
         }
 
-        public IActionResult Edit(Category updatedCat)
+        public async Task<IActionResult> Edit(Category updatedCat)
         {
             if (ModelState.IsValid)
             {
-                _categoryRepository.UpdateCategory(updatedCat);
+                // actualizo la categoria
+                await _categoryRepository.UpdateCategory(updatedCat);
 
                 return RedirectToAction("Index");
             }
 
             return RedirectToAction("Error", "Home");
         }
-        public IActionResult DeleteCategory(int id)
+        public async Task<IActionResult> DeleteCategory(int id)
         {
             if (id == 0 || id == null)
             {
@@ -78,7 +83,8 @@ namespace SuplementosShop.Controllers
             }
             else
             {
-                var cat = _categoryRepository.GetCategoryById(id);
+                // traigo la categoria a eliminar
+                var cat = await _categoryRepository.GetCategoryById(id);
                 if (cat == null)
                 {
                     return NotFound("The category doesn't exist!");
@@ -88,10 +94,10 @@ namespace SuplementosShop.Controllers
 
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-
-            _categoryRepository.DeleteCategory(id);
+            // elimino la categoria
+            await _categoryRepository.DeleteCategory(id);
 
             return RedirectToAction("Index");
 

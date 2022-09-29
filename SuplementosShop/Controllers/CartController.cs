@@ -13,26 +13,28 @@ namespace SuplementosShop.Controllers
     public class CartController : Controller
     {
         private readonly ICartRepository _cartRepository;
-        private readonly UserManager<IdentityUser> _userManager;
 
 
 
-        public CartController(ICartRepository cartRepository, UserManager<IdentityUser> userManager)
+        public CartController(ICartRepository cartRepository)
         {
             _cartRepository = cartRepository;
-            _userManager = userManager;
         }
-        public async Task<IActionResult> Index(ProductCategoryViewModel model)
+        public async Task<IActionResult> Index()
         {
 
-            var user = await _userManager.FindByNameAsync(model.UserId);
-            var userId = user.Id;
 
+            //traigo el usuario loggeado
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            var items = _cartRepository.GetItems(userId);
+            //traigo los items del carrito del usuario loggeado
+
+            var items = await _cartRepository.GetItems(userIdClaim);
             var cartQuantity = 0;
             var totalPrice = 0;
 
+
+            // calculo el precio total y la cantidad de items del carrito
             if (items != null)
             {
                 foreach (var item in items)
@@ -43,7 +45,7 @@ namespace SuplementosShop.Controllers
 
 
 
-                CartViewModel vmodel = new CartViewModel()
+                CartViewModel vmodel = new()
                 {
                     CartItems = items,
                     CartQuantity = cartQuantity,
@@ -53,7 +55,7 @@ namespace SuplementosShop.Controllers
                 return View(vmodel);
             }
 
-            CartViewModel vmodel2 = new CartViewModel()
+            CartViewModel vmodel2 = new()
             {
                 CartItems = new List<CartItem>(),
                 CartQuantity = cartQuantity,
@@ -70,34 +72,37 @@ namespace SuplementosShop.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(ProductCategoryViewModel model)
         {
+            //traigo el usuario loggeado
 
-            var user = await _userManager.FindByNameAsync(model.UserId);
-            var userId = user.Id;
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            _cartRepository.AddItem(model.CurrentProductId, model.ProductQuantity, userId);
+
+
+            // agrego el item al carrito del usuario
+            await _cartRepository.AddItem(model.CurrentProductId, model.ProductQuantity, userIdClaim);
 
             return RedirectToAction("Index", "Market");
         }
 
 
         [HttpPost]
-        public IActionResult Delete(CartViewModel model)
+        public async Task<IActionResult> Delete(CartViewModel model)
         {
 
+            //elimino el item
+            await _cartRepository.DeleteItem(model.CurrentCartItemId);
 
-            _cartRepository.DeleteItem(model.CurrentCartItemId);
-
-            return RedirectToAction("Index", "Market");
+            return RedirectToAction("Index", "Cart");
         }
 
         [HttpPost]
-        public IActionResult Edit(CartViewModel model)
+        public async Task<IActionResult> Edit(CartViewModel model)
         {
+            // actualizo la cantidad del item
+            await _cartRepository.UpdateItem(model.CurrentCartItemId, model.QuantityUpdated);
 
-            _cartRepository.UpdateItem(model.CurrentCartItemId, model.QuantityUpdated);
 
-
-            return RedirectToAction("Index", "Market");
+            return RedirectToAction("Index", "Cart");
         }
     }
 }

@@ -17,53 +17,64 @@ namespace SuplementosShop.Controllers
             _categoryRepository = categoryRepository;
         }
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee, Admin")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
 
-            ProductCategoryViewModel mymodel = new ProductCategoryViewModel();
-            mymodel.Products = _productRepository.GetProducts();
-            mymodel.Categories = _categoryRepository.GetCategories();
+            //traigo todos los productos y categorias
+
+            ProductCategoryViewModel mymodel = new();
+            mymodel.Products = await _productRepository.GetProducts();
+            mymodel.Categories = await _categoryRepository.GetCategories();
 
             return View(mymodel);
         }
 
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
-        public IActionResult AddProduct()
+        public async Task<IActionResult> AddProduct()
         {
-            SingleProductCategoryViewModel mymodel = new SingleProductCategoryViewModel();
-            mymodel.Categories = _categoryRepository.GetCategories();
+            SingleProductCategoryViewModel mymodel = new();
+
+            //traigo las categorias para mostrar en un select
+            mymodel.Categories = await _categoryRepository.GetCategories();
 
             return View(mymodel);
         }
 
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
-        public IActionResult Add(SingleProductCategoryViewModel newProd)
+        public async Task<IActionResult> Add(SingleProductCategoryViewModel newProd)
         {
 
+            //traigo la categoria seleccionada
+            var cat = await _categoryRepository.GetCategoryById(newProd.Product.CategoryId);
 
-            var cat = _categoryRepository.GetCategoryById(newProd.Product.CategoryId);
+            if (cat != null)
+                newProd.Product.Category = cat;
 
-            newProd.Product.Category = cat;
+            // agrego el nuevo producto
+            await _productRepository.AddProduct(newProd.Product);
 
-            _productRepository.AddProduct(newProd.Product);
             return RedirectToAction("Index");
 
 
         }
 
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
-        public IActionResult EditProduct(int id)
+        public async Task<IActionResult> EditProduct(int id)
         {
-            if (id == 0 || id == null)
+            if (id == 0)
             {
                 return NotFound("The id doesn't exist!");
             }
             else
             {
 
-                SingleProductCategoryViewModel mymodel = new SingleProductCategoryViewModel();
-                mymodel.Product = _productRepository.GetProductById(id);
-                mymodel.Categories = _categoryRepository.GetCategories();
+                SingleProductCategoryViewModel mymodel = new();
+
+
+                //traigo el producto a actualizar
+                mymodel.Product = await _productRepository.GetProductById(id);
+
+                mymodel.Categories = await _categoryRepository.GetCategories();
 
                 if (mymodel.Product == null)
                 {
@@ -75,10 +86,12 @@ namespace SuplementosShop.Controllers
         }
 
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
-        public IActionResult Edit(SingleProductCategoryViewModel prodToUpdate)
+        public async Task<IActionResult> Edit(SingleProductCategoryViewModel prodToUpdate)
         {
-
-            _productRepository.UpdateProduct(prodToUpdate.Product);
+            if (prodToUpdate.Product is null)
+                return RedirectToAction("Index");
+            //actualizo el producto
+            await _productRepository.UpdateProduct(prodToUpdate.Product);
 
             return RedirectToAction("Index");
 
@@ -86,15 +99,17 @@ namespace SuplementosShop.Controllers
         }
 
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
-        public IActionResult DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProduct(int id)
         {
-            if (id == 0 || id == null)
+            if (id == 0)
             {
                 return NotFound("The id doesn't exist!");
             }
             else
             {
-                var prod = _productRepository.GetProductById(id);
+
+                //traigo el producto a eliminar
+                var prod = await _productRepository.GetProductById(id);
                 if (prod == null)
                 {
                     return NotFound("The product doesn't exist!");
@@ -105,10 +120,10 @@ namespace SuplementosShop.Controllers
         }
 
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-
-            _productRepository.DeleteProduct(id);
+            // elimino el producto
+            await _productRepository.DeleteProduct(id);
 
             return RedirectToAction("Index");
         }

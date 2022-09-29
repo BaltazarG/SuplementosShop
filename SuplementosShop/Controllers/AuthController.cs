@@ -20,18 +20,18 @@ namespace SuplementosShop.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
         private readonly ICartRepository _cartRepository;
-
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public AuthController(
             UserManager<IdentityUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            IConfiguration configuration, ICartRepository cartRepository)
+            IConfiguration configuration, ICartRepository cartRepository, IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
             _cartRepository = cartRepository;
-
+            _httpContextAccessor = httpContextAccessor;
         }
         public IActionResult Login()
         {
@@ -58,17 +58,39 @@ namespace SuplementosShop.Controllers
                     //new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 };
 
+
+                var token = TokenGenerator(authClaims).ToString();
+
+
+                var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
+                identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id));
+                identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName));
+
                 foreach (var userRole in userRoles)
                 {
-                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                    identity.AddClaim(new Claim(ClaimTypes.Role, userRole));
                 }
-
-                var token = GetToken(authClaims);
-
-                var claimsIdentity = new ClaimsIdentity(authClaims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var principal = new ClaimsPrincipal(identity);
 
 
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                // agrego el token a la cookie
+                if (_httpContextAccessor.HttpContext != null)
+                    _httpContextAccessor.HttpContext.Response.Cookies.Append("Token", token, new CookieOptions { HttpOnly = true, Secure = true });
+
+                // inicio de sesion
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    principal,
+                    new AuthenticationProperties
+                    {
+                        IsPersistent = true,
+                        AllowRefresh = true,
+                        ExpiresUtc = DateTime.UtcNow.AddDays(1)
+                    });
+
+
+                // dependiendo el role del usuario loggeado, lo redirijo a una vista
 
                 if (userRoles[0].ToString() == "Customer")
                     return RedirectToAction("Index", "Market");
@@ -77,6 +99,9 @@ namespace SuplementosShop.Controllers
 
                 if (userRoles[0].ToString() == "Employee")
                     return RedirectToAction("Index", "Product");
+
+                if (userRoles[0].ToString() == "WaitingForApproval")
+                    return RedirectToAction("Index", "WaitingForApproval");
 
 
                 return RedirectToAction("Index", "Category");
@@ -111,7 +136,9 @@ namespace SuplementosShop.Controllers
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+                return StatusCode(StatusCodes.Status500InternalServerError);
+
+            // Añado el role pedido por el usuario, pero en caso de seleccionar empleado, entrará en espera de ser aprobado por el administrador
 
 
             if (model.RoleSelected == enums.RoleRegister.Customer)
@@ -132,14 +159,6 @@ namespace SuplementosShop.Controllers
 
             }
 
-            if (model.RoleSelected == enums.RoleRegister.Admin)
-            {
-                if (!await _roleManager.RoleExistsAsync("Admin"))
-                    await _roleManager.CreateAsync(new IdentityRole("Admin"));
-
-                await _userManager.AddToRoleAsync(user, "Admin");
-
-            }
 
             var userRoles = await _userManager.GetRolesAsync(user);
 
@@ -147,7 +166,6 @@ namespace SuplementosShop.Controllers
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
                     new Claim(ClaimTypes.NameIdentifier, user.Id),
-                    //new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 };
 
             foreach (var userRole in userRoles)
@@ -155,16 +173,26 @@ namespace SuplementosShop.Controllers
                 authClaims.Add(new Claim(ClaimTypes.Role, userRole));
             }
 
-            var token = GetToken(authClaims);
+            var token = TokenGenerator(authClaims).ToString();
 
             var claimsIdentity = new ClaimsIdentity(authClaims, CookieAuthenticationDefaults.AuthenticationScheme);
 
 
+            //agrego el token a la cookie
+
+            _httpContextAccessor.HttpContext.Response.Cookies.Append("Token", token, new CookieOptions { HttpOnly = true, Secure = true });
+
+            // inicio sesion  despues de registrarse
+
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+            // dependiendo el role del usuario loggeado, lo redirijo a una vista
+
 
             if (model.RoleSelected == enums.RoleRegister.Customer)
             {
-                _cartRepository.CreateCart(user.Id);
+                // le creo un carrito
+                await _cartRepository.CreateCart(user.Id);
                 return RedirectToAction("Index", "Market");
             }
 
@@ -180,17 +208,22 @@ namespace SuplementosShop.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            _httpContextAccessor.HttpContext.Response.Cookies.Delete("Token");
+
             return RedirectToAction("Login", "Auth");
         }
 
-        private JwtSecurityToken GetToken(List<Claim> authClaims)
+
+        // Genero el token
+
+        private JwtSecurityToken TokenGenerator(List<Claim> authClaims)
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["JWT:ValidIssuer"],
                 audience: _configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddHours(3),
+                expires: DateTime.Now.AddHours(4),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
                 );

@@ -4,10 +4,10 @@ namespace SuplementosShop.Repositories.Interfaces
 {
     public interface ICategoryRepository
     {
-        ICollection<Category> GetCategories();
-        Category GetCategoryById(int categoryId);
-        void UpdateCategory(Category category);
-        void DeleteCategory(int categoryId);
-        void AddCategory(Category category);
+        Task<ICollection<Category?>> GetCategories();
+        Task<Category?> GetCategoryById(int categoryId);
+        Task UpdateCategory(Category category);
+        Task DeleteCategory(int categoryId);
+        Task AddCategory(Category category);
     }
 }
