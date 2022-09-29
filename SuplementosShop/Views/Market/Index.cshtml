@@ -9,16 +9,12 @@
 
 <div class="d-flex justify-content-between mb-3 align-items-center">
     <h3>Market</h3>
-    <form method="post" asp-controller="Cart" asp-action="Index">
     
         @if(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) != null)
         {
-            <input asp-for=UserId hidden value=@User.Identity.Name />   
+            <a class="btn btn-success" asp-area="" asp-controller="Cart" asp-action="Index">Cart</a>       
+  
         }
-
-        <button type="submit" class="btn btn-success" value="Index">Cart</button>
-    </form>
-
 </div>
 
 
@@ -32,7 +28,6 @@
 
                              <input asp-for=CurrentProductId hidden value=@prod.Id />
 
-                              <input asp-for=UserId hidden value=@User.Identity.Name />
 
 
                              <div class="card" style="width: 18rem;">

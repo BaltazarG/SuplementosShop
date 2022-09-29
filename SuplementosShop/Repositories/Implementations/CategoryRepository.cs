@@ -48,6 +48,7 @@ namespace SuplementosShop.Repositories.Implementations
         {
             var categories = await _context.Categories.ToListAsync();
 
+
             return categories;
         }
 
@@ -55,6 +56,8 @@ namespace SuplementosShop.Repositories.Implementations
         {
             var categoryToUpdate = await GetCategoryById(category.Id);
 
+            if (categoryToUpdate is null)
+                return;
 
             _context.Categories.Remove(categoryToUpdate);
             await _context.Categories.AddAsync(category);

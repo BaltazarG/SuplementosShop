@@ -22,7 +22,7 @@ namespace SuplementosShop.Controllers
 
             //traigo todos los productos y categorias
 
-            ProductCategoryViewModel mymodel = new ProductCategoryViewModel();
+            ProductCategoryViewModel mymodel = new();
             mymodel.Products = await _productRepository.GetProducts();
             mymodel.Categories = await _categoryRepository.GetCategories();
 
@@ -32,7 +32,7 @@ namespace SuplementosShop.Controllers
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
         public async Task<IActionResult> AddProduct()
         {
-            SingleProductCategoryViewModel mymodel = new SingleProductCategoryViewModel();
+            SingleProductCategoryViewModel mymodel = new();
 
             //traigo las categorias para mostrar en un select
             mymodel.Categories = await _categoryRepository.GetCategories();
@@ -47,7 +47,8 @@ namespace SuplementosShop.Controllers
             //traigo la categoria seleccionada
             var cat = await _categoryRepository.GetCategoryById(newProd.Product.CategoryId);
 
-            newProd.Product.Category = cat;
+            if (cat != null)
+                newProd.Product.Category = cat;
 
             // agrego el nuevo producto
             await _productRepository.AddProduct(newProd.Product);
@@ -60,14 +61,14 @@ namespace SuplementosShop.Controllers
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
         public async Task<IActionResult> EditProduct(int id)
         {
-            if (id == 0 || id == null)
+            if (id == 0)
             {
                 return NotFound("The id doesn't exist!");
             }
             else
             {
 
-                SingleProductCategoryViewModel mymodel = new SingleProductCategoryViewModel();
+                SingleProductCategoryViewModel mymodel = new();
 
 
                 //traigo el producto a actualizar
@@ -87,6 +88,8 @@ namespace SuplementosShop.Controllers
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
         public async Task<IActionResult> Edit(SingleProductCategoryViewModel prodToUpdate)
         {
+            if (prodToUpdate.Product is null)
+                return RedirectToAction("Index");
             //actualizo el producto
             await _productRepository.UpdateProduct(prodToUpdate.Product);
 
@@ -98,7 +101,7 @@ namespace SuplementosShop.Controllers
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Employee")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            if (id == 0 || id == null)
+            if (id == 0)
             {
                 return NotFound("The id doesn't exist!");
             }

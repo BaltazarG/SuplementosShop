@@ -49,12 +49,11 @@
                                     <div class="d-flex w-100 justify-content-end gap-1">
                                         <form method="post" asp-controller="Cart" asp-action="Edit" class="d-flex justify-content-end gap-1">
 
-                                            <input asp-for=UserId hidden value=@User.Identity.Name />   
                                         
 
                                             <input asp-for=CurrentCartItemId hidden value=@item.Id />
 
-                                            <input value="1" asp-for="QuantityUpdated" class="form-control p-0 m-0 text-center w-25" min="1" />
+                                            <input value="@item.Quantity" asp-for="QuantityUpdated" class="form-control p-0 m-0 text-center w-25" min="1" />
 
                                             <button type="submit" class="btn btn-outline-warning" value="Edit">Edit</button>
 
@@ -63,7 +62,6 @@
 
                                         <form method="post" asp-controller="Cart" asp-action="Delete" class="">
 
-                                            <input asp-for=UserId hidden value=@User.Identity.Name />   
                                         
 
                                             <input asp-for=CurrentCartItemId hidden value=@item.Id />

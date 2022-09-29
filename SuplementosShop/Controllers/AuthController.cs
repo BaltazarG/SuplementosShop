@@ -74,7 +74,8 @@ namespace SuplementosShop.Controllers
 
 
                 // agrego el token a la cookie
-                _httpContextAccessor.HttpContext.Response.Cookies.Append("Token", token, new CookieOptions { HttpOnly = true, Secure = true });
+                if (_httpContextAccessor.HttpContext != null)
+                    _httpContextAccessor.HttpContext.Response.Cookies.Append("Token", token, new CookieOptions { HttpOnly = true, Secure = true });
 
                 // inicio de sesion
 
