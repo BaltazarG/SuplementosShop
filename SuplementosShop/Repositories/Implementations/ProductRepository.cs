@@ -42,7 +42,7 @@ namespace SuplementosShop.Repositories.Implementations
 
         public async Task<IEnumerable<Product?>> GetProducts()
         {
-            IEnumerable<Product>? products = await _context.Products.Include(c => c.Category).ToListAsync();
+            IEnumerable<Product>? products = await _context.Products.Include(c => c.Category).OrderBy(c => c.Name).ToListAsync();
 
             return products;
         }
@@ -58,9 +58,16 @@ namespace SuplementosShop.Repositories.Implementations
         {
             var productToUpdate = await GetProductById(product.Id);
 
+            if (productToUpdate is null)
+                return;
 
-            _context.Products.Remove(productToUpdate);
-            await _context.Products.AddAsync(product);
+            productToUpdate.CategoryId = product.CategoryId;
+            productToUpdate.Name = product.Name;
+            productToUpdate.Description = product.Description;
+            productToUpdate.Category = product.Category;
+            productToUpdate.ImageUrl = product.ImageUrl;
+            productToUpdate.Price = product.Price;
+
 
             await _context.SaveChangesAsync();
         }

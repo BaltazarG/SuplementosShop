@@ -31,17 +31,6 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<SuplementosShopContext>()
     .AddDefaultTokenProviders();
 
-
-
-//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-//    .AddCookie(option =>
-//    {
-//        option.LoginPath = "/Auth/Login";
-//        option.ExpireTimeSpan = TimeSpan.FromMinutes(45);
-//        option.AccessDeniedPath = "/Home/Index";
-//    });
-
-
 // Agrego autenticacion por cookies o jwt
 
 builder.Services.AddAuthentication(options =>

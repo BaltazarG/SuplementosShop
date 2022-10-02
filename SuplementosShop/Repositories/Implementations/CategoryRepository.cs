@@ -59,8 +59,8 @@ namespace SuplementosShop.Repositories.Implementations
             if (categoryToUpdate is null)
                 return;
 
-            _context.Categories.Remove(categoryToUpdate);
-            await _context.Categories.AddAsync(category);
+            categoryToUpdate.ShortDescription = category.ShortDescription;
+            categoryToUpdate.Name = categoryToUpdate.Name;
 
             await _context.SaveChangesAsync();
         }
